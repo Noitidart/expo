@@ -1,15 +1,12 @@
-// import { DEFAULT_WEB_APP_OPTIONS } from 'expo-firebase-core';
 import * as FileSystem from 'expo-file-system';
 import firebase from 'firebase';
-
 import 'firebase/auth';
-import 'firebase/firestore';
 import 'firebase/database';
-import 'firebase/storage';
+import 'firebase/firestore';
 import 'firebase/functions';
+import 'firebase/storage';
 
-// The modules below require browser features and
-// are not compatible within the react-native context.
+// The modules below require browser features and are not compatible within the react-native context.
 // import "firebase/analytics";
 // import "firebase/remote-config";
 // import "firebase/messaging";
@@ -21,7 +18,14 @@ import { expectMethodToThrowAsync } from '../TestUtils';
 export const name = 'FirebaseJSSDK';
 
 const FIREBASE_CONFIG = {
-  // NOT COMMITED
+  apiKey: 'AIzaSyD2gZuX5utrLBAdJoMrAdrMW7Sv9xQ5uBE',
+  authDomain: 'expo-payments.firebaseapp.com',
+  databaseURL: 'https://expo-payments.firebaseio.com',
+  projectId: 'expo-payments',
+  storageBucket: 'expo-payments.appspot.com',
+  messagingSenderId: '482324271988',
+  appId: '1:482324271988:web:9597460d096749b3f8d221',
+  measurementId: 'G-498KQSTM5G',
 };
 
 export async function test({ describe, it, expect, beforeAll }) {
