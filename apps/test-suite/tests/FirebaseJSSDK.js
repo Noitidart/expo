@@ -16,7 +16,9 @@ import 'firebase/functions';
 // import "firebase/performance";
 // import "firebase/installations";
 
-export const name = 'FirebaseJS';
+import { expectMethodToThrowAsync } from '../TestUtils';
+
+export const name = 'FirebaseJSSDK';
 
 const FIREBASE_CONFIG = {
   // NOT COMMITED
