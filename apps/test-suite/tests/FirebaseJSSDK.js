@@ -108,7 +108,7 @@ export async function test({ describe, it, expect, beforeAll }) {
         const functions = firebase.functions();
         expect(functions).not.toBeNull();
       });
-      it(`calls the echo function`, async () => {
+      it.skip(`calls the echo function`, async () => {
         let error = null;
         try {
           const message = "I'm a unit test";
