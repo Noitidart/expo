@@ -37,7 +37,7 @@ export async function test({ describe, it, expect, beforeAll }) {
     }
   });
 
-  describe('FirebaseJS', async () => {
+  describe('FirebaseJSSDK', async () => {
     describe('auth', async () => {
       it(`calls auth() succesfully`, () => {
         firebase.auth();
