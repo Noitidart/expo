@@ -36,12 +36,31 @@ export async function test({ describe, it, expect, beforeAll }) {
       it(`calls auth() succesfully`, () => {
         firebase.auth();
       });
+      it(`returns correct sign-in error`, async () => {
+        const error = await expectMethodToThrowAsync(() =>
+          firebase.auth().signInWithEmailAndPassword('testuser@invaliddomain.com', '0')
+        );
+        expect(error.code).toBe('auth/operation-not-allowed');
+      });
     });
 
     describe('database', async () => {
       it(`calls database() succesfully`, () => {
         const db = firebase.database();
         expect(db).not.toBeNull();
+      });
+      it(`reads data once`, async () => {
+        let error = null;
+        try {
+          const snapshot = await firebase
+            .database()
+            .ref('/test1')
+            .once('value');
+          expect(snapshot.val()).toBe('foobar');
+        } catch (e) {
+          error = e;
+        }
+        expect(error).toBeNull();
       });
     });
 
@@ -110,82 +129,62 @@ export async function test({ describe, it, expect, beforeAll }) {
             .storage()
             .ref('public')
             .listAll();
+          expect(files.items.length).toBeGreaterThan(0);
         } catch (e) {
           error = e;
         }
         expect(error).toBeNull();
       });
-
-      describe('getDownloadURL()', async () => {
-        it(`returns valid url`, async () => {
-          let error = null;
-          try {
-            const files = await firebase
-              .storage()
-              .ref('public')
-              .listAll();
-            expect(files.items.length).toBe(1);
-            const file = files.items[0];
-            const downloadUrl = await file.getDownloadURL();
-            expect(typeof downloadUrl).toBe('string');
-            const startUrl = 'https://firebasestorage.googleapis.com';
-            expect(downloadUrl.substring(0, startUrl.length)).toBe(startUrl);
-          } catch (e) {
-            error = e;
-          }
-          expect(error).toBeNull();
-        });
-        it(`downloads the file`, async () => {
-          let error = null;
-          try {
-            const files = await firebase
-              .storage()
-              .ref('public')
-              .listAll();
-            expect(files.items.length).toBe(1);
-            const file = files.items[0];
-            const downloadUrl = await file.getDownloadURL();
-            const { uri } = await FileSystem.downloadAsync(
-              downloadUrl,
-              FileSystem.documentDirectory + file.name
+      it(`downloads a file`, async () => {
+        let error = null;
+        try {
+          const files = await firebase
+            .storage()
+            .ref('public')
+            .listAll();
+          expect(files.items.length).toBeGreaterThan(0);
+          const file = files.items[0];
+          const downloadUrl = await file.getDownloadURL();
+          expect(typeof downloadUrl).toBe('string');
+          const startUrl = 'https://firebasestorage.googleapis.com';
+          expect(downloadUrl.substring(0, startUrl.length)).toBe(startUrl);
+          const { uri } = await FileSystem.downloadAsync(
+            downloadUrl,
+            FileSystem.documentDirectory + file.name
+          );
+          expect(typeof uri).toBe('string');
+          expect(uri).not.toBeNull();
+        } catch (e) {
+          error = e;
+        }
+        expect(error).toBeNull();
+      });
+      /* it(`upload a file`, async () => {
+        let error = null;
+        try {
+          // REQUIRES AUTH
+          const currentUser = firebase.auth ? firebase.auth().currentUser : undefined;
+          // const suffix = new Date().toISOString().replace(/\D/g, '');
+          const fileContent = new ArrayBuffer(1000);
+          const ref = firebase
+            .storage()
+            .ref(`users/${currentUser.uid}`)
+            .child(`unittest`);
+          // @ts-ignore
+          const uploadTask = ref.put(fileContent);
+          await new Promise((resolve, reject) => {
+            uploadTask.on(
+              firebase.storage.TaskEvent.STATE_CHANGED,
+              snapshot => {},
+              reject,
+              resolve
             );
-            expect(typeof uri).toBe('string');
-            expect(uri).not.toBeNull();
-          } catch (e) {
-            error = e;
-          }
-          expect(error).toBeNull();
-        });
-      });
-
-      describe('putFile()', async () => {
-        it(`upload file succesfully`, async () => {
-          let error = null;
-          try {
-            const currentUser = firebase.auth ? firebase.auth().currentUser : undefined;
-            if (!currentUser) return;
-            // const suffix = new Date().toISOString().replace(/\D/g, '');
-            const fileContent = new ArrayBuffer(1000);
-            const ref = firebase
-              .storage()
-              .ref(`users/${currentUser.uid}`)
-              .child(`unittest`);
-            // @ts-ignore
-            const uploadTask = ref.put(fileContent);
-            await new Promise((resolve, reject) => {
-              uploadTask.on(
-                firebase.storage.TaskEvent.STATE_CHANGED,
-                snapshot => {},
-                reject,
-                resolve
-              );
-            });
-          } catch (e) {
-            error = e;
-          }
-          expect(error).toBeNull();
-        });
-      });
+          });
+        } catch (e) {
+          error = e;
+        }
+        expect(error).toBeNull();
+      });*/
     });
   });
 }
